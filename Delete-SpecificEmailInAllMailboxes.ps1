@@ -2,7 +2,7 @@
   .SYNOPSIS
   This script will create and run a Content Search, then delete the matching emails. 
    
-  Adrian Dolder - 365cloud.pro
+  Adrian Dolder - 365cloud (365cloud.pro)
   	
   THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE 
   RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER.
@@ -83,12 +83,15 @@ New-ComplianceSearch -Name $searchName -ExchangeLocation All -ContentMatchQuery 
 # Start the Content Search
 Start-ComplianceSearch -Identity $searchName
 
-# Wait for the search to complete (optional: add a delay or check status in a loop)
-Start-Sleep -Seconds 60
+# Wait for the search to complete
+$searchStatus = Get-ComplianceSearch -Identity $searchName
+while ($searchStatus.Status -ne "Completed") {
+    Write-Host "Waiting for search to complete..."
+    Start-Sleep -Seconds 30
+    $searchStatus = Get-ComplianceSearch -Identity $searchName
+}
 
 # Delete the emails
 New-ComplianceSearchAction -SearchName $searchName -Purge -PurgeType HardDelete
 
 Write-Host "Emails from $senderAddress with subject '$emailSubject' have been deleted."
-
-}
